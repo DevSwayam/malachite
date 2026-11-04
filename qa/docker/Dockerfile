@@ -2,13 +2,13 @@
 #  docker build . --build-context code=$MALACHITE_DIR/code
 FROM rust AS builder
 RUN apt-get -o Acquire::Retries=0 update && apt-get -o Acquire::Retries=0 install -y --only-upgrade apt && \
-    apt-get install -y protobuf-compiler
+    apt-get -o Acquire::Retries=0 install -y protobuf-compiler
 WORKDIR /mnt
 RUN --mount=type=bind,from=code,target=/mnt cargo build --release --target-dir /tmp
 
 FROM debian:bookworm-slim
 RUN apt-get -o Acquire::Retries=0 update && apt-get -o Acquire::Retries=0 install -y --only-upgrade apt && \
-    apt-get install -y iproute2
+    apt-get -o Acquire::Retries=0 install -y iproute2
 COPY --from=builder /tmp/release/malachite-cli /usr/local/bin/malachite-cli
 COPY --chmod=755 entrypoint.sh /usr/bin/entrypoint.sh
 ENTRYPOINT ["/usr/bin/entrypoint.sh"]
